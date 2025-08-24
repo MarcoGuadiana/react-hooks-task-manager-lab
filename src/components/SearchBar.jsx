@@ -1,22 +1,10 @@
-import React, { useRef } from "react";
-
-function SearchBar({ query, setQuery }) {
-  const searchRef = useRef();
-
-  function handleChange() {
-    setQuery(searchRef.current.value);
-  }
-
+function SearchBar({ search, setSearch }) {
   return (
-    <div>
-      <input
-        type="text"
-        ref={searchRef}
-        value={query}
-        onChange={handleChange}
-        placeholder="Search tasks..."
-      />
-    </div>
+    <input
+      placeholder="Search tasks..."
+      value={search}
+      onChange={(e) => setSearch(e.target.value)}
+    />
   );
 }
 

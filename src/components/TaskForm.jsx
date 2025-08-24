@@ -1,27 +1,24 @@
-import React, { useState, useId } from "react";
+import { useState } from "react";
 
-function TaskForm({ addTask }) {
-  const [taskName, setTaskName] = useState("");
-  const inputId = useId();
+function TaskForm({ onAddTask }) {
+  const [title, setTitle] = useState("");
 
-  function handleSubmit(e) {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    if (taskName.trim() === "") return;
-    addTask(taskName);
-    setTaskName("");
-  }
+    if (!title.trim()) return;
+    onAddTask(title);
+    setTitle("");
+  };
 
   return (
     <form onSubmit={handleSubmit}>
-      <label htmlFor={inputId}>New Task:</label>
       <input
-        id={inputId}
         type="text"
-        value={taskName}
-        onChange={(e) => setTaskName(e.target.value)}
         placeholder="Add a new task..."
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
       />
-      <button type="submit">Add Task</button>
+      <button type="submit">Add</button>
     </form>
   );
 }

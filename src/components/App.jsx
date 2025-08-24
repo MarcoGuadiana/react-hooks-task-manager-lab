@@ -1,52 +1,68 @@
-import React, { useEffect, useState } from "react";
-import TaskForm from "./TaskForm";
-import SearchBar from "./SearchBar";
+import { useEffect, useState } from "react";
 import TaskList from "./TaskList";
+import TaskForm from "./TaskForm";
+
+const API_URL = "http://localhost:7000/tasks";
 
 function App() {
   const [tasks, setTasks] = useState([]);
-  const [query, setQuery] = useState("");
 
-  // Fetch tasks
+  // Fetch tasks from JSON Server
   useEffect(() => {
-    fetch("http://localhost:6001/tasks")
-      .then((r) => r.json())
-      .then((data) => setTasks(data));
+    const fetchTasks = async () => {
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+        setTasks(data);
+      } catch (err) {
+        console.error("Error fetching tasks:", err);
+      }
+    };
+    fetchTasks();
   }, []);
 
-  // Add new task
-  function addTask(title) {
-    const newTask = { id: Date.now(), title, completed: false };
-    setTasks([...tasks, newTask]);
-    // optionally also POST to server
-    fetch("http://localhost:6001/tasks", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newTask),
-    });
-  }
+  // Add task
+  const handleAddTask = async (title) => {
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          completed: false,
+          id: Date.now(),
+        }),
+      });
+      const newTask = await res.json();
+      setTasks((prev) => [...prev, newTask]);
+    } catch (err) {
+      console.error("Error adding task:", err);
+    }
+  };
 
-  // Toggle complete
-  function toggleComplete(id) {
-    const updatedTasks = tasks.map((task) =>
-      task.id === id ? { ...task, completed: !task.completed } : task
-    );
-    setTasks(updatedTasks);
-
-    const task = tasks.find((t) => t.id === id);
-    fetch(`http://localhost:6001/tasks/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ completed: !task.completed }),
-    });
-  }
+  // Toggle completion
+  const handleToggleTask = async (id) => {
+    try {
+      const task = tasks.find((t) => t.id === id);
+      const res = await fetch(`${API_URL}/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ completed: !task.completed }),
+      });
+      const updated = await res.json();
+      setTasks((prev) =>
+        prev.map((t) => (t.id === id ? updated : t))
+      );
+    } catch (err) {
+      console.error("Error toggling task:", err);
+    }
+  };
 
   return (
     <div>
       <h1>Task Manager</h1>
-      <TaskForm addTask={addTask} />
-      <SearchBar query={query} setQuery={setQuery} />
-      <TaskList tasks={tasks} query={query} toggleComplete={toggleComplete} />
+      <TaskForm onAddTask={handleAddTask} />
+      <TaskList tasks={tasks} onToggleTask={handleToggleTask} />
     </div>
   );
 }
