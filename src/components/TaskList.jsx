@@ -1,9 +1,7 @@
-import React, { useContext,useState } from "react";
-import { TaskContext } from "../context/TaskContext";
+import React from "react";
 
-function TaskList({query}) {
-    const [tasks, setTasks] = useState([]);
-    const filteredTasks = tasks.filter(task =>
+function TaskList({ tasks, query, toggleComplete }) {
+  const filteredTasks = tasks.filter((task) =>
     task.title.toLowerCase().includes(query.toLowerCase())
   );
 
@@ -14,7 +12,7 @@ function TaskList({query}) {
           <span style={{ textDecoration: task.completed ? "line-through" : "none" }}>
             {task.title}
           </span>
-          <button data-testid={task.id}>
+          <button onClick={() => toggleComplete(task.id)}>
             {task.completed ? "Undo" : "Complete"}
           </button>
         </li>
